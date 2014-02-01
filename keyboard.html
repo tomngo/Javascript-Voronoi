@@ -44,22 +44,8 @@ var VoronoiDemo = {
     },
 
     init: function() {
-        // var me = this;
         this.canvas = document.getElementById('voronoiCanvas');
-        // this.canvas.onmousemove = function(e) {
-        //     if (!me.sites.length) {return;}
-        //     var site = me.sites[0];
-        //     var mouse = me.normalizeEventCoords(me.canvas,e);
-        //     site.x = mouse.x;
-        //     site.y = mouse.y;
-        //     me.diagram = me.voronoi.compute(me.sites,me.bbox);
-        //     me.render();
-        // };
-        // this.canvas.onclick = function(e) {
-        //     var mouse = me.normalizeEventCoords(me.canvas,e);
-        //     me.addSite(mouse.x,mouse.y);
-        //     me.render();
-        // };
+        this.isDragging = false;
         this.keyboard();
         this.render();
     },
@@ -88,15 +74,8 @@ var VoronoiDemo = {
         this.diagram = this.voronoi.compute(this.sites, this.bbox);
     },
 
-    cellUnderMouse: function( ev ) {
-
-        if ( !this.diagram ) { return; }
-
-        var canvas = document.getElementById('voronoiCanvas');
-        if ( !canvas ) { return; }
-
-        var mouse = this.normalizeEventCoords( this.canvas, ev );
-        cellid = this.cellIdFromPoint( mouse );
+    keypress: function( cellid ) {
+        if ( cellid !== undefined ) { console.log( "key: " + cellid ); }
         if ( this.lastCell !== cellid ) {
             if ( this.lastCell !== undefined ) {
                 this.renderCell( this.lastCell, '#fff', '#000' );
@@ -106,12 +85,34 @@ var VoronoiDemo = {
             }
             this.lastCell = cellid;
         }
-        x = mouse.x;
-        y = mouse.y;
-        document.getElementById('voronoiCellid').innerHTML = "(" + x + "," + y + ") = " + cellid;
     },
 
-    distance2ToSite: function( p0, p1 )
+    onMouseDown: function( ev ) {
+        var mouse = this.normalizeEventCoords( this.canvas, ev );
+        cellid = this.cellIdFromPoint( mouse );
+        this.keypress( cellid );
+        this.isDragging = true;
+    },
+
+    onMouseUp: function( ev ) {
+        this.keypress( undefined );
+        this.isDragging = false;
+    },
+
+    onMouseMove: function( ev ) {
+
+        if ( !this.diagram ) { return; }
+
+        var canvas = document.getElementById('voronoiCanvas');
+        if ( !canvas ) { return; }
+
+        var mouse = this.normalizeEventCoords( this.canvas, ev );
+        cellid = this.cellIdFromPoint( mouse );
+
+        if ( this.isDragging && (cellid !== this.lastCell) ) { this.keypress( cellid ); }
+    },
+
+    dist2: function( p0, p1 )
     {
         var dx = p1.x - p0.x;
         var dy = p1.y - p0.y;
@@ -125,15 +126,15 @@ var VoronoiDemo = {
         if ( !iSites ) { return undefined; }
 
         var best_iSite  = 0;
-        var best_dist2  = this.distance2ToSite( point, sites[0] );
+        var best_d2  = this.dist2( point, sites[0] );
 
         while ( --iSites > 0 ) {
 
             var site  = sites[iSites];
-            var dist2 = this.distance2ToSite( point, site );
-            if ( dist2 >= best_dist2 ) { continue; }
+            var d2 = this.dist2( point, site );
+            if ( d2 >= best_d2 ) { continue; }
             best_iSite = iSites;
-            best_dist2 = dist2;
+            best_d2 = d2;
         }
 
         return this.sites[best_iSite].voronoiId; 
@@ -215,25 +216,6 @@ var VoronoiDemo = {
             ctx.rect(v.x-2/3,v.y-2/3,2,2);
         }
         ctx.fill();
-
-        // site[0]
-        // var sites  = this.sites,
-        //     nSites = sites.length;
-        // if ( !nSites ) { return; }
-        // var cell = this.diagram.cells[this.sites[0].voronoiId];
-        // if ( !cell ) { return; }
-        // var halfedges  = cell.halfedges,
-        //     nHalfedges = halfedges.length;
-        // if ( nHalfedges < 3 ) { return; }
-        // v = halfedges[0].getStartpoint();
-        // ctx.beginPath();
-        // ctx.moveTo(v.x,v.y);
-        // for (var iHalfedge=0; iHalfedge<nHalfedges; iHalfedge++) {
-        //     v = halfedges[iHalfedge].getEndpoint();
-        //     ctx.lineTo(v.x,v.y);
-        // }
-        // ctx.fillStyle = '#faa';
-        // ctx.fill();
     },
 };
 </script>
@@ -246,7 +228,10 @@ var VoronoiDemo = {
             id="voronoiCanvas"
             width="320" height="216"
             onclick="VoronoiDemo.recompute();"
-            onmousemove="VoronoiDemo.cellUnderMouse(event);"/>
+            onmousedown="VoronoiDemo.onMouseDown(event);"
+            onmouseup="VoronoiDemo.onMouseUp(event);"
+            onmousemove="VoronoiDemo.onMouseMove(event);"
+        />
         <div id="voronoiNoCanvasAlert" style="display:none;padding:1em;background-color:#fcc;color:black;">
             <p>Your browser doesn't support the HTML5 &lt;canvas&gt; element technology.</p>
             <p>See <a target="_blank" href="http://en.wikipedia.org/wiki/Canvas_(HTML_element)">Wikipedia</a> for information on which browsers support the <u>HTML5 &lt;canvas&gt;</u> technology.</p>
