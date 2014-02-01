@@ -110,6 +110,14 @@ var VoronoiDemo = {
     },
 
     keyboard: function() {
+
+        // Keys
+        var keytable = {
+            10: 'a',
+            11: 'b',
+        }
+
+        // Geometry
         var s = 25.,
             w = s * Math.sqrt(3),
             r = s * 1.5,
@@ -122,22 +130,24 @@ var VoronoiDemo = {
             for ( var j = 0; j < n; j++ ) {
                 var xx = xmin + i * w + ( j%2==0 ? 0 : -w/2 );
                 var yy = ymin + j * r;
-                this.sites.push( { x: xx, y: yy, c: 'a' });
+                var co = i*10 + j;
+                var ky = co in keytable ? keytable[co] : '';
+                this.sites.push( { x: xx, y: yy, c: co, k: ky });
             }
         }
-        this.voronoi.recycle(this.diagram);
-        this.diagram = this.voronoi.compute(this.sites, this.bbox);
+        this.voronoi.recycle( this.diagram );
+        this.diagram = this.voronoi.compute( this.sites, this.bbox );
     },
 
     recompute: function() {
-        this.diagram = this.voronoi.compute(this.sites, this.bbox);
+        this.diagram = this.voronoi.compute( this.sites, this.bbox );
     },
 
     keypress: function( site ) {
 
         var cellid = ( site !== undefined ) ? site.voronoiId : undefined;
 
-        if ( site !== undefined ) { textWidget.append( site.c ); }
+        if ( site !== undefined ) { textWidget.append( site.k ); }
         if ( this.lastSite !== site ) {
             if ( this.lastSite !== undefined ) { this.renderCell( this.lastSite.voronoiId, '#fff', '#000' ); }
             if ( cellid        !== undefined ) { this.renderCell( cellid,                  '#f00', '#00f' ); }
@@ -232,10 +242,12 @@ var VoronoiDemo = {
 
         // Interior
         v = cell.site;
-        ctx.font="14px Courier";
         ctx.fillStyle = 'black';
         ctx.textAlign = "center";
-        ctx.fillText( v.c, v.x, v.y );
+        ctx.font="14px Courier";
+        ctx.fillText( v.k, v.x, v.y + 3 );
+        ctx.font="9px Courier";
+        ctx.fillText( v.c, v.x, v.y + 15 );  
     },
 
     render: function() {
