@@ -2,14 +2,20 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<meta name="viewport" 
+  content="width=device-width,user-scalable=no,target-densitydpi=device-dpi, initial-scale:1,maximum-scale=1.0" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
 <title>Javascript implementation of Steven Fortune's algorithm to compute Voronoi diagrams: Demo 1</title>
 <meta name="Keywords" lang="en" content="voronoi, fortune, javascript, raymond hill"/>
 <!--[if lte IE 8]><script type="text/javascript" src="excanvas/excanvas.compiled.js"></script><![endif]-->
 <script type="text/javascript" src="rhill-voronoi-core.min.js"></script>
 <style type="text/css">
-    body {font-family:tahoma,verdana,arial;font-size:13px;margin:0;padding:0}
-    body > div {margin-left:4px;margin-right:4px;}
-    body > div > div {margin:0;border:1px solid #ccc;border-top:0;padding:4px;}
+    body { overflow:hidden; font-family:tahoma,verdana,arial; font-size:13px; margin:0; padding:0 }
+    body > div { margin-left:4px; margin-right:4px; }
+    body > div > div { margin:0; border:1px solid #ccc; border-top:0; padding:4px; }
     h1 {margin:0 0 0.5em 0;padding: 4px 5em 4px 4px;font:bold large sans-serif;background-color:#c9d7f1;}
     h4 {font-size:14px;margin:0.5em 0 0 0;border:0;border-bottom:solid 1px #c9d7f1;padding:2px;background-color:#e5ecf9;}
     #canvasParent {margin-top:0;margin-bottom:1em;padding:0;border:0}
@@ -88,6 +94,7 @@ var VoronoiDemo = {
     },
 
     onMouseDown: function( ev ) {
+        ev.preventDefault();
         var mouse = this.normalizeEventCoords( this.canvas, ev );
         cellid = this.cellIdFromPoint( mouse );
         this.keypress( cellid );
@@ -95,11 +102,14 @@ var VoronoiDemo = {
     },
 
     onMouseUp: function( ev ) {
+        ev.preventDefault();
         this.keypress( undefined );
         this.isDragging = false;
     },
 
     onMouseMove: function( ev ) {
+
+        ev.preventDefault();
 
         if ( !this.diagram ) { return; }
 
@@ -222,7 +232,7 @@ var VoronoiDemo = {
 </head>
 <body onload="VoronoiDemo.init();">
     <h1>Javascript implementation of honeycomb keyboard layout</h1>
-    <div id="canvasParent">
+    <div id="canvasParent" class='unscroll'>
         <noscript>You need to enable Javascript in your browser for this page to display properly.</noscript>
         <canvas
             id="voronoiCanvas"
@@ -231,6 +241,9 @@ var VoronoiDemo = {
             onmousedown="VoronoiDemo.onMouseDown(event);"
             onmouseup="VoronoiDemo.onMouseUp(event);"
             onmousemove="VoronoiDemo.onMouseMove(event);"
+            ontouchstart="VoronoiDemo.onMouseDown(event);"
+            ontouchend="VoronoiDemo.onMouseUp(event);"
+            ontouchmove="VoronoiDemo.onMouseMove(event);"
         />
         <div id="voronoiNoCanvasAlert" style="display:none;padding:1em;background-color:#fcc;color:black;">
             <p>Your browser doesn't support the HTML5 &lt;canvas&gt; element technology.</p>
