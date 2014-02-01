@@ -26,7 +26,7 @@
 var textWidget = {
 
     canvas: null,
-    text: "hello",
+    text: "> ",
 
     init: function() {
         this.canvas = document.getElementById('textCanvas');
@@ -121,7 +121,7 @@ var VoronoiDemo = {
             for ( var j = 0; j < n; j++ ) {
                 var xx = xmin + i * w + ( j%2==0 ? 0 : -w/2 );
                 var yy = ymin + j * r;
-                this.sites.push( { x: xx, y: yy });
+                this.sites.push( { x: xx, y: yy, c: 'a' });
             }
         }
         this.voronoi.recycle(this.diagram);
@@ -132,8 +132,14 @@ var VoronoiDemo = {
         this.diagram = this.voronoi.compute(this.sites, this.bbox);
     },
 
-    keypress: function( cellid ) {
-        if ( cellid !== undefined ) { console.log( "key: " + cellid ); textWidget.append("A"); }
+    keypress: function( site ) {
+
+        var cellid = ( site !== undefined ) ? site.voronoiId : undefined;
+
+        if ( cellid !== undefined ) {
+            console.log( "key: " + cellid );
+            textWidget.append("A");
+        }
         if ( this.lastCell !== cellid ) {
             if ( this.lastCell !== undefined ) {
                 this.renderCell( this.lastCell, '#fff', '#000' );
@@ -148,8 +154,8 @@ var VoronoiDemo = {
     onMouseDown: function( ev ) {
         ev.preventDefault();
         var mouse = this.normalizeEventCoords( this.canvas, ev );
-        cellid = this.cellIdFromPoint( mouse );
-        this.keypress( cellid );
+        var site  = this.siteFromPoint( mouse );
+        this.keypress( site );
         this.isDragging = true;
     },
 
@@ -169,9 +175,10 @@ var VoronoiDemo = {
         if ( !canvas ) { return; }
 
         var mouse = this.normalizeEventCoords( this.canvas, ev );
-        cellid = this.cellIdFromPoint( mouse );
+        var site  = this.siteFromPoint( mouse );
+        cellid = site.voronoiId;
 
-        if ( this.isDragging && (cellid !== this.lastCell) ) { this.keypress( cellid ); }
+        if ( this.isDragging && (cellid !== this.lastCell) ) { this.keypress( site ); }
     },
 
     dist2: function( p0, p1 )
@@ -181,7 +188,7 @@ var VoronoiDemo = {
         return dx*dx + dy*dy;
     },
 
-    cellIdFromPoint: function( point ) {
+    siteFromPoint: function( point ) {
 
         var sites  = this.sites,
             iSites = sites.length;
@@ -199,7 +206,7 @@ var VoronoiDemo = {
             best_d2 = d2;
         }
 
-        return this.sites[best_iSite].voronoiId; 
+        return this.sites[best_iSite]; 
 
     },
 
