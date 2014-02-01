@@ -38,6 +38,12 @@ var textWidget = {
         this.render();
     },
 
+    backspace: function() {
+        if ( this.text.length == 0 ) { return; }
+        this.text = this.text.substring( 0, this.text.length-1 );
+        this.render();
+    },
+
     render: function() {
 
         // Parameters
@@ -113,16 +119,45 @@ var VoronoiDemo = {
 
         // Keys
         var keytable = {
-            10: 'a',
-            11: 'b',
+            11: 'f',
+            21: 't',
+            31: 'h',
+            41: 'e',
+            51: 'r',
+            61: 'm',
+            71: 'z',
+            12: 'c',
+            22: 'a',
+            32: 'n',
+            42: 'i',
+            52: 's',
+            62: 'y',
+            13: 'q',
+            23: 'u',
+            33: 'o',
+            43: 'g',
+            53: 'd',
+            63: 'l',
+            73: 'x',
+            14: 'p',
+            24: 'b',
+            34: 'v',
+            44: 'k',
+            54: 'j',
+            64: 'w',
+             1: 'sp',
+             2: 'sp',
+             3: 'sp',
+             4: 'sp',
+            81: 'bk',
         }
 
         // Geometry
-        var s = 25.,
+        var s = 22.,
             w = s * Math.sqrt(3),
             r = s * 1.5,
-            m = 8,
-            n = 6,
+            m = 9,
+            n = 7,
             xmin = 15.,
             ymin = 15.;
         this.sites = [];
@@ -147,7 +182,15 @@ var VoronoiDemo = {
 
         var cellid = ( site !== undefined ) ? site.voronoiId : undefined;
 
-        if ( site !== undefined ) { textWidget.append( site.k ); }
+        if ( site !== undefined ) {
+            switch( site.k )
+            {
+                case '':   break;
+                case 'sp': textWidget.append( '_' );    break;
+                case 'bk': textWidget.backspace();      break;
+                default:   textWidget.append( site.k );
+            }
+        }
         if ( this.lastSite !== site ) {
             if ( this.lastSite !== undefined ) { this.renderCell( this.lastSite.voronoiId, '#fff', '#000' ); }
             if ( cellid        !== undefined ) { this.renderCell( cellid,                  '#f00', '#00f' ); }
