@@ -63,6 +63,7 @@ var textWidget = {
         // Render text
         ctx.font="14px Courier";
         ctx.fillStyle = 'black';
+        ctx.textAlign = "start";
         while ( t.length > 0 )
         {
             var len  = t.length;
@@ -203,13 +204,18 @@ var VoronoiDemo = {
     },
 
     renderCell: function( id, fillStyle, strokeStyle ) {
+
+        // Guards
         if ( id === undefined ) { return; }
         if ( !this.diagram ) { return; }
         var cell = this.diagram.cells[id];
         if ( !cell ) { return; }
+
+        // Canvas
         var ctx = this.canvas.getContext('2d');
         ctx.globalAlpha = 1;
-        // edges
+
+        // Edges
         ctx.beginPath();
         var halfedges = cell.halfedges,
             nHalfedges = halfedges.length,
@@ -223,16 +229,20 @@ var VoronoiDemo = {
         ctx.strokeStyle = strokeStyle;
         ctx.fill();
         ctx.stroke();
-        // site
+
+        // Interior
         v = cell.site;
-        ctx.fillStyle = '#44f';
-        ctx.beginPath();
-        ctx.rect(v.x-2/3,v.y-2/3,2,2);
-        ctx.fill();
+        ctx.font="14px Courier";
+        ctx.fillStyle = 'black';
+        ctx.textAlign = "center";
+        ctx.fillText( v.c, v.x, v.y );
     },
 
     render: function() {
+
         var ctx = this.canvas.getContext('2d');
+        if ( !this.diagram ) { return; }
+
         // background
         ctx.globalAlpha = 1;
         ctx.beginPath();
@@ -241,8 +251,7 @@ var VoronoiDemo = {
         ctx.fill();
         ctx.strokeStyle = '#888';
         ctx.stroke();
-        // voronoi
-        if (!this.diagram) {return;}
+        
         // edges
         ctx.beginPath();
         ctx.strokeStyle = '#000';
@@ -257,24 +266,24 @@ var VoronoiDemo = {
             ctx.lineTo(v.x,v.y);
         }
         ctx.stroke();
-        // edges
-        ctx.beginPath();
-        ctx.fillStyle = 'red';
-        var vertices = this.diagram.vertices,
-            iVertex = vertices.length;
-        while (iVertex--) {
-            v = vertices[iVertex];
-            ctx.rect(v.x-1,v.y-1,3,3);
-        }
-        ctx.fill();
+
         // sites
         ctx.beginPath();
-        ctx.fillStyle = '#44f';
         var sites = this.sites,
             iSite = sites.length;
-        while (iSite--) {
-            v = sites[iSite];
-            ctx.rect(v.x-2/3,v.y-2/3,2,2);
+
+        while ( --iSite >= 0 ) {
+
+            cellid = sites[iSite].voronoiId;
+            if ( cellid !== undefined ) { this.renderCell( cellid, 'white', 'black' ); }
+
+            // ctx.font="14px Courier";
+            // ctx.fillStyle = 'black';
+            // ctx.textAlign = "center";
+
+            // ctx.fillText( v.c, v.x, v.y );
+
+            // ctx.rect(v.x-2/3,v.y-2/3,2,2);
         }
         ctx.fill();
     },
