@@ -149,14 +149,15 @@ var VoronoiDemo = {
              2: 'sp',
              3: 'sp',
              4: 'sp',
-            81: 'bk',
+            50: 'bk',
+            60: 'bk',
         }
 
         // Geometry
-        var s = 22.,
+        var s = 25.,
             w = s * Math.sqrt(3),
             r = s * 1.5,
-            m = 9,
+            m = 8,
             n = 7,
             xmin = 15.,
             ymin = 15.;
@@ -287,10 +288,10 @@ var VoronoiDemo = {
         v = cell.site;
         ctx.fillStyle = 'black';
         ctx.textAlign = "center";
-        ctx.font="14px Courier";
-        ctx.fillText( v.k, v.x, v.y + 3 );
+        ctx.font="20px Courier";
+        ctx.fillText( v.k, v.x, v.y + 5 );
         ctx.font="9px Courier";
-        ctx.fillText( v.c, v.x, v.y + 15 );  
+        // ctx.fillText( v.c, v.x, v.y + 15 );  
     },
 
     render: function() {
