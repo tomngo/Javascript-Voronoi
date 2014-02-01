@@ -136,18 +136,11 @@ var VoronoiDemo = {
 
         var cellid = ( site !== undefined ) ? site.voronoiId : undefined;
 
-        if ( cellid !== undefined ) {
-            console.log( "key: " + cellid );
-            textWidget.append("A");
-        }
-        if ( this.lastCell !== cellid ) {
-            if ( this.lastCell !== undefined ) {
-                this.renderCell( this.lastCell, '#fff', '#000' );
-            }
-            if ( cellid !== undefined ) {
-                this.renderCell( cellid, '#f00', '#00f' );
-            }
-            this.lastCell = cellid;
+        if ( site !== undefined ) { textWidget.append( site.c ); }
+        if ( this.lastSite !== site ) {
+            if ( this.lastSite !== undefined ) { this.renderCell( this.lastSite.voronoiId, '#fff', '#000' ); }
+            if ( cellid        !== undefined ) { this.renderCell( cellid,                  '#f00', '#00f' ); }
+            this.lastSite = site;
         }
     },
 
@@ -176,9 +169,8 @@ var VoronoiDemo = {
 
         var mouse = this.normalizeEventCoords( this.canvas, ev );
         var site  = this.siteFromPoint( mouse );
-        cellid = site.voronoiId;
 
-        if ( this.isDragging && (cellid !== this.lastCell) ) { this.keypress( site ); }
+        if ( this.isDragging && (site !== this.lastSite) ) { this.keypress( site ); }
     },
 
     dist2: function( p0, p1 )
