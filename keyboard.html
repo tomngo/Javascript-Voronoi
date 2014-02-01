@@ -23,6 +23,58 @@
     #voronoiCode span {color:green;font-weight:bold;}
 </style>
 <script id="script" type="text/javascript">
+var textWidget = {
+
+    canvas: null,
+    text: "hello",
+
+    init: function() {
+        this.canvas = document.getElementById('textCanvas');
+        this.render();
+    },
+
+    append: function( s ) {
+        this.text += s;
+        this.render();
+    },
+
+    render: function() {
+
+        // Parameters
+        var ctx = this.canvas.getContext('2d'),
+            charsPerLine = 36,
+            pixelsPerLine = 16,
+            pixelsTop = 20,
+            pixelsLeft = 12;
+
+        // State
+        var t   = this.text,
+            l   = 0;
+
+        // Clear canvas
+        ctx.globalAlpha = 1;
+        ctx.beginPath();
+        ctx.rect(0,0,this.canvas.width,this.canvas.height);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+        ctx.strokeStyle = '#888';
+        ctx.stroke();
+
+        // Render text
+        ctx.font="14px Courier";
+        ctx.fillStyle = 'black';
+        while ( t.length > 0 )
+        {
+            var len  = t.length;
+            var line = (len > charsPerLine) ? t.substring(0,charsPerLine) : t;
+            var rem  = (len > charsPerLine) ? t.substring(charsPerLine)   : "";
+            ctx.fillText( line, pixelsLeft, pixelsTop + l * pixelsPerLine );
+            t = rem;
+            l++;
+        }
+    },
+
+};
 var VoronoiDemo = {
     voronoi: new Voronoi(),
     sites: [],
@@ -81,7 +133,7 @@ var VoronoiDemo = {
     },
 
     keypress: function( cellid ) {
-        if ( cellid !== undefined ) { console.log( "key: " + cellid ); }
+        if ( cellid !== undefined ) { console.log( "key: " + cellid ); textWidget.append("A"); }
         if ( this.lastCell !== cellid ) {
             if ( this.lastCell !== undefined ) {
                 this.renderCell( this.lastCell, '#fff', '#000' );
@@ -230,8 +282,13 @@ var VoronoiDemo = {
 };
 </script>
 </head>
-<body onload="VoronoiDemo.init();">
-    <h1>Javascript implementation of honeycomb keyboard layout</h1>
+<body onload="VoronoiDemo.init(); textWidget.init();">
+    <div id="textarea" class='unscroll'>
+        <canvas
+            id="textCanvas"
+            width="320" height="216"
+        />
+    </div>
     <div id="canvasParent" class='unscroll'>
         <noscript>You need to enable Javascript in your browser for this page to display properly.</noscript>
         <canvas
