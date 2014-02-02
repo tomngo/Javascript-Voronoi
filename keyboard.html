@@ -54,7 +54,7 @@ var textWidget = {
             pixelsLeft = 12;
 
         // State
-        var t   = this.text,
+        var t   = this.text + '_',
             l   = 0;
 
         // Clear canvas
@@ -89,6 +89,8 @@ var VoronoiDemo = {
     margin: 0.15,
     canvas: null,
     bbox: {xl:0,xr:320,yt:0,yb:216},
+    trail: [], // array of { site, time }
+    lastNonIdle: new Date(),
     colorBgnd: '#FFC',
     colorHigh: '#F93',
 
@@ -115,6 +117,9 @@ var VoronoiDemo = {
         this.isDragging = false;
         this.keyboard();
         this.render();
+
+        var self = this;
+        setInterval( function() { self.onTimer(); }, 10 );
     },
 
     keyboard: function() {
@@ -183,7 +188,7 @@ var VoronoiDemo = {
                 var yy = ymin + j * r;
                 var co = i*10 + j;
                 var ky = co in keytable ? keytable[co] : '';
-                this.sites.push( { x: xx, y: yy, c: co, k: ky });
+                this.sites.push( { x: xx, y: yy, c: co, k: ky } );
             }
         }
         this.voronoi.recycle( this.diagram );
@@ -202,16 +207,21 @@ var VoronoiDemo = {
             switch( site.k )
             {
                 case '':   break;
-                case 'sp': textWidget.append( '_' );    break;
+                case 'sp': textWidget.append( ' ' );    break;
                 case 'bk': textWidget.backspace();      break;
                 default:   textWidget.append( site.k );
             }
         }
+
         if ( this.lastSite !== site ) {
-            if ( this.lastSite !== undefined ) { this.renderCell( this.lastSite.voronoiId, this.colorBgnd, '#000' ); }
-            if ( cellid        !== undefined ) { this.renderCell( cellid,                  this.colorHigh, '#00f' ); }
+            var now = new Date();
+            if ( cellid !== undefined ) {
+                this.trail.push( { site: site, time: now.getTime() } );
+                this.render();
+            }
             this.lastSite = site;
         }
+
     },
 
     onMouseDown: function( ev ) {
@@ -220,12 +230,14 @@ var VoronoiDemo = {
         var site  = this.siteFromPoint( mouse );
         this.keypress( site );
         this.isDragging = true;
+        this.lastNonIdle = new Date();
     },
 
     onMouseUp: function( ev ) {
         ev.preventDefault();
         this.keypress( undefined );
         this.isDragging = false;
+        this.lastNonIdle = new Date();
     },
 
     onMouseMove: function( ev ) {
@@ -241,6 +253,19 @@ var VoronoiDemo = {
         var site  = this.siteFromPoint( mouse );
 
         if ( this.isDragging && (site !== this.lastSite) ) { this.keypress( site ); }
+
+        this.lastNonIdle = new Date();
+    },
+
+    onTimer: function() {
+
+        var now = new Date();
+        var minIdle = 100;
+
+        if ( now.getTime() - this.lastNonIdle.getTime() < minIdle ) { return; }
+        this.lastNonIdle = now;
+        
+        this.render();
     },
 
     dist2: function( p0, p1 )
@@ -306,7 +331,7 @@ var VoronoiDemo = {
         ctx.font="20px Courier";
         ctx.fillText( v.k, v.x, v.y + 5 );
         ctx.font="9px Courier";
-        ctx.fillText( v.c, v.x, v.y + 17 );  
+        // ctx.fillText( v.c, v.x, v.y + 17 );  
     },
 
     render: function() {
@@ -338,7 +363,7 @@ var VoronoiDemo = {
         }
         ctx.stroke();
 
-        // sites
+        // Sites (TODO: don't have to draw all of them all of the time)
         ctx.beginPath();
         var sites = this.sites,
             iSite = sites.length;
@@ -348,6 +373,30 @@ var VoronoiDemo = {
             cellid = sites[iSite].voronoiId;
             if ( cellid !== undefined ) { this.renderCell( cellid, this.colorBgnd, 'black' ); }
 
+        }
+
+        // Trail
+        var fade = [
+            { time:  100, color: '#F90' },
+            { time:  250, color: '#FC0' },
+            { time: 1000, color: '#FC3' },
+            { time: 2000, color: '#FC9' },
+        ];
+        var now = new Date(),
+            t = now.getTime(),
+            n = this.trail.length;
+        while ( --n >= 0 )
+        {
+            // this.renderCell( this.trail[n].site.voronoiId, '#F90', 'black' );
+            for ( var i = 0; i < fade.length; i++ )
+            {
+                if ( t - this.trail[n].time < fade[i].time )
+                {
+                    this.renderCell( this.trail[n].site.voronoiId, fade[i].color, 'black' );
+                    break;
+                }
+                this.trail.splice( n, 1 );
+            }
         }
         
     },
