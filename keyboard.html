@@ -89,6 +89,8 @@ var VoronoiDemo = {
     margin: 0.15,
     canvas: null,
     bbox: {xl:0,xr:320,yt:0,yb:216},
+    colorBgnd: '#FFC',
+    colorHigh: '#F93',
 
     normalizeEventCoords: function( target, e ) {
         // http://www.quirksmode.org/js/events_properties.html#position
@@ -145,18 +147,29 @@ var VoronoiDemo = {
             56: 'o',
             66: 'f',
             76: 'x',
+            12: '0',
+            22: '2',
+            32: '4',
+            42: '6',
+            52: '8',
+            21: '1',
+            31: '3',
+            41: '5',
+            51: '7',
+            61: '9',
              3: 'sp',
              4: 'sp',
              5: 'sp',
-            13: 'sp',
+             6: 'sp',
+            13: '.',
             15: ',',
-             6: '.',
             83: 'bk',
             84: 'bk',
+            85: 'bk',
         }
 
         // Geometry
-        var s = 22.,
+        var s = 21.5,
             w = s * Math.sqrt(3),
             r = s * 1.5,
             m = 9,
@@ -195,8 +208,8 @@ var VoronoiDemo = {
             }
         }
         if ( this.lastSite !== site ) {
-            if ( this.lastSite !== undefined ) { this.renderCell( this.lastSite.voronoiId, '#fff', '#000' ); }
-            if ( cellid        !== undefined ) { this.renderCell( cellid,                  '#f00', '#00f' ); }
+            if ( this.lastSite !== undefined ) { this.renderCell( this.lastSite.voronoiId, this.colorBgnd, '#000' ); }
+            if ( cellid        !== undefined ) { this.renderCell( cellid,                  this.colorHigh, '#00f' ); }
             this.lastSite = site;
         }
     },
@@ -293,7 +306,7 @@ var VoronoiDemo = {
         ctx.font="20px Courier";
         ctx.fillText( v.k, v.x, v.y + 5 );
         ctx.font="9px Courier";
-        // ctx.fillText( v.c, v.x, v.y + 17 );  
+        ctx.fillText( v.c, v.x, v.y + 17 );  
     },
 
     render: function() {
@@ -305,7 +318,7 @@ var VoronoiDemo = {
         ctx.globalAlpha = 1;
         ctx.beginPath();
         ctx.rect(0,0,this.canvas.width,this.canvas.height);
-        ctx.fillStyle = 'white';
+        ctx.fillStyle = this.colorBgnd;
         ctx.fill();
         ctx.strokeStyle = '#888';
         ctx.stroke();
@@ -333,7 +346,7 @@ var VoronoiDemo = {
         while ( --iSite >= 0 ) {
 
             cellid = sites[iSite].voronoiId;
-            if ( cellid !== undefined ) { this.renderCell( cellid, 'white', 'black' ); }
+            if ( cellid !== undefined ) { this.renderCell( cellid, this.colorBgnd, 'black' ); }
 
         }
         
