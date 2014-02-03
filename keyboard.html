@@ -90,6 +90,7 @@ var VoronoiDemo = {
     canvas: null,
     bbox: {xl:0,xr:320,yt:0,yb:216},
     sitetrail: [], // array of { site, time }
+    dottrail: [],  // array of { x, y, time }
     lastNonIdle: new Date(),
     colorBgnd: '#FFC',
     colorHigh: '#F93',
@@ -282,7 +283,7 @@ var VoronoiDemo = {
     dositetrail: function( site ) {
 
         if ( site !== undefined ) { this.keypress( site.k ); }
-        
+
         if ( site !== this.lastSite ) {
             if ( site !== undefined && site.voronoiId !== undefined ) {
                 this.sitetrail.push( { site: site, time: (new Date()).getTime() } );
@@ -294,6 +295,7 @@ var VoronoiDemo = {
     startswipe: function( ev ) {
         var mouse = this.normalizeEventCoords( this.canvas, ev );
         var site  = this.siteFromPoint( mouse );
+        this.dottrail = [ { x: mouse.x, y: mouse.y, time: (new Date()).getTime() }];
         this.dositetrail( site );
         this.isDragging = true;
         this.render();
@@ -302,6 +304,7 @@ var VoronoiDemo = {
     extendswipe: function( ev ) {
         var mouse = this.normalizeEventCoords( this.canvas, ev );
         var site  = this.siteFromPoint( mouse );
+        if ( this.isDragging ) { this.dottrail.push( { x: mouse.x, y: mouse.y, time: (new Date()).getTime() } ); }
         if ( this.isDragging && (site !== this.lastSite) ) { this.dositetrail( site ); }
         this.render();
     },
@@ -448,7 +451,7 @@ var VoronoiDemo = {
 
         }
 
-        // Trail
+        // Site Trail
         var fade = [
             { time:  100, color: '#F90' },
             { time:  250, color: '#FC0' },
@@ -471,6 +474,18 @@ var VoronoiDemo = {
             }
         }
         
+        // Dot Trail
+        var dotlifetime = 1000;
+        n = this.dottrail.length;
+        ctx.beginPath();
+        ctx.fillStyle = '#44f';
+        while ( --n >= 0 )
+        {
+            v = this.dottrail[n];
+            ctx.rect( v.x-2/3, v.y-2/3, 2, 2 );
+            if ( t - this.dottrail[n].time > dotlifetime ) { this.dottrail.splice(n,1); }
+        }
+        ctx.fill();
     },
 };
 </script>
