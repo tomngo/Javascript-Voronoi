@@ -125,7 +125,7 @@ var VoronoiDemo = {
     keyboard: function() {
 
         // Keys
-        var keytable = {
+        var keytable_hex = {
             11: 'b',
             21: 'q',
             31: 'c',
@@ -171,16 +171,86 @@ var VoronoiDemo = {
             61: 'bk',
             62: 'bk',
             63: 'bk',
-        }
+            side: 24,
+            ncols: 8,
+            nrows: 7,
+            xmin: 47.,
+            ymin: -12.,
+        };
+
+        var keytable_qwerty = {
+             2: '1',
+            12: '2',
+            22: '3',
+            32: '4',
+            42: '5',
+            52: '6',
+            62: '7',
+            72: '8',
+            82: '9',
+            92: '0',
+            13: 'q',
+            23: 'w',
+            33: 'e',
+            43: 'r',
+            53: 't',
+            63: 'y',
+            73: 'u',
+            83: 'i',
+            93: 'o',
+           103: 'p',
+            14: 'a',
+            24: 's',
+            34: 'd',
+            44: 'f',
+            54: 'g',
+            64: 'h',
+            74: 'j',
+            84: 'k',
+            94: 'l',
+           104: ';',
+            25: 'z',
+            35: 'x',
+            45: 'c',
+            55: 'v',
+            65: 'b',
+            75: 'n',
+            85: 'm',
+            95: ',',
+           105: '.',
+            36: 'sp',
+            46: 'sp',
+            56: 'sp',
+            66: 'sp',
+            76: 'sp',
+            // 12: '0',
+            // 22: '2',
+            // 32: '4',
+            // 42: '6',
+            // 52: '8',
+            // 21: '1',
+            // 31: '3',
+            // 41: '5',
+            // 51: '7',
+            // 61: '9',
+            side: 17,
+            ncols: 12,
+            nrows: 7,
+            xmin: 10.,
+            ymin: 0.,
+        };
+
+        // Keyboard choice
+        var keytable = keytable_qwerty;
 
         // Geometry
-        var s = 24,
+        var s = keytable["side"],
             w = s * Math.sqrt(3),
             r = s * 1.5,
-            m = 8,
-            n = 7,
-            xmin = 47.,
-            ymin = -12.;
+            m = keytable["ncols"],
+            n = keytable["nrows"],
+            xmin = keytable["xmin"],
+            ymin = keytable["ymin"];
         this.sites = [];
         for ( var i = 0; i < m; i++ ) {
             for ( var j = 0; j < n; j++ ) {
