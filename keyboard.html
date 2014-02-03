@@ -241,7 +241,7 @@ var VoronoiDemo = {
         };
 
         // Keyboard choice
-        var keytable = keytable_qwerty;
+        var keytable = keytable_hex;
 
         // Geometry
         var s = keytable["side"],
@@ -294,36 +294,40 @@ var VoronoiDemo = {
 
     },
 
-    onMouseDown: function( ev ) {
-        ev.preventDefault();
+    startswipe: function( ev ) {
         var mouse = this.normalizeEventCoords( this.canvas, ev );
         var site  = this.siteFromPoint( mouse );
         this.keypress( site );
         this.isDragging = true;
+    },
+
+    extendswipe: function( ev ) {
+        var mouse = this.normalizeEventCoords( this.canvas, ev );
+        var site  = this.siteFromPoint( mouse );
+        if ( this.isDragging && (site !== this.lastSite) ) { this.keypress( site ); }
+    },
+
+    endswipe: function() {
+        this.keypress( undefined );
+        this.isDragging = false;
+    },
+
+
+    onMouseDown: function( ev ) {
+        ev.preventDefault();
+        this.startswipe( ev );
         this.lastNonIdle = new Date();
     },
 
     onMouseUp: function( ev ) {
         ev.preventDefault();
-        this.keypress( undefined );
-        this.isDragging = false;
+        this.endswipe();
         this.lastNonIdle = new Date();
     },
 
     onMouseMove: function( ev ) {
-
         ev.preventDefault();
-
-        if ( !this.diagram ) { return; }
-
-        var canvas = document.getElementById('voronoiCanvas');
-        if ( !canvas ) { return; }
-
-        var mouse = this.normalizeEventCoords( this.canvas, ev );
-        var site  = this.siteFromPoint( mouse );
-
-        if ( this.isDragging && (site !== this.lastSite) ) { this.keypress( site ); }
-
+        this.extendswipe( ev );
         this.lastNonIdle = new Date();
     },
 
