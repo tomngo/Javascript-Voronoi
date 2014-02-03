@@ -281,16 +281,14 @@ var VoronoiDemo = {
 
     dositetrail: function( site ) {
 
-        var cellid = ( site !== undefined ) ? site.voronoiId : undefined;
-
         if ( site !== undefined ) { this.keypress( site.k ); }
-
-        if ( this.lastSite !== site ) {
-            var now = new Date();
-            if ( cellid !== undefined ) { this.sitetrail.push( { site: site, time: now.getTime() } ); }
+        
+        if ( site !== this.lastSite ) {
+            if ( site !== undefined && site.voronoiId !== undefined ) {
+                this.sitetrail.push( { site: site, time: (new Date()).getTime() } );
+            }
             this.lastSite = site;
         }
-
     },
 
     startswipe: function( ev ) {
