@@ -270,7 +270,7 @@ var VoronoiDemo = {
         this.diagram = this.voronoi.compute( this.sites, this.bbox );
     },
 
-    keypress: function( key ) {
+    presskey: function( key ) {
         switch ( key )
         {
             case '':   break;
@@ -280,16 +280,23 @@ var VoronoiDemo = {
         }
     },
 
-    dositetrail: function( site ) {
-
-        if ( site !== undefined ) { this.keypress( site.k ); }
-
-        if ( site !== this.lastSite ) {
-            if ( site !== undefined && site.voronoiId !== undefined ) {
-                this.sitetrail.push( { site: site, time: (new Date()).getTime() } );
-            }
-            this.lastSite = site;
+    presskeys: function() {
+        var lastSite = undefined;
+        for ( var i = 0; i < this.dottrail.length; i++ )
+        {
+            var site  = this.siteFromPoint( this.dottrail[i] );
+            if ( site == lastSite ) { continue; }
+            this.presskey( site.k );
+            lastSite = site;
         }
+    },
+
+    dositetrail: function( site ) {
+        if ( site == this.lastSite ) { return; }
+        if ( site !== undefined && site.voronoiId !== undefined ) {
+            this.sitetrail.push( { site: site, time: (new Date()).getTime() } );
+        }
+        this.lastSite = site;
     },
 
     startswipe: function( ev ) {
@@ -311,6 +318,7 @@ var VoronoiDemo = {
 
     endswipe: function() {
         this.dositetrail( undefined );
+        this.presskeys();
         this.isDragging = false;
         this.render();
     },
