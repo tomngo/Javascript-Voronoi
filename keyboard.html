@@ -89,8 +89,10 @@ var VoronoiDemo = {
     margin: 0.15,
     canvas: null,
     bbox: {xl:0,xr:320,yt:0,yb:216},
+    keyloc: {},
     sitetrail: [], // array of { site, time }
     dottrail: [],  // array of { x, y, time }
+    keytrail: [],  // array of { key, time }
     lastNonIdle: new Date(),
     colorBgnd: '#FFC',
     colorHigh: '#F93',
@@ -260,6 +262,7 @@ var VoronoiDemo = {
                 var co = i*10 + j;
                 var ky = co in keytable ? keytable[co] : '';
                 this.sites.push( { x: xx, y: yy, c: co, k: ky } );
+                if ( ky != '' ) { this.keyloc[ky] = { x: xx, y: yy }; };
             }
         }
         this.voronoi.recycle( this.diagram );
@@ -282,11 +285,14 @@ var VoronoiDemo = {
 
     presskeys: function() {
         var lastSite = undefined;
+        var dt = (new Date()).getTime() - this.dottrail[0].time;
+        this.keytrail = [];
         for ( var i = 0; i < this.dottrail.length; i++ )
         {
             var site  = this.siteFromPoint( this.dottrail[i] );
             if ( site == lastSite ) { continue; }
             this.presskey( site.k );
+            this.keytrail.push( { key: site.k, time: this.dottrail[i].time + dt } );
             lastSite = site;
         }
     },
@@ -304,6 +310,7 @@ var VoronoiDemo = {
         var site  = this.siteFromPoint( mouse );
         this.dottrail = [ { x: mouse.x, y: mouse.y, time: (new Date()).getTime() }];
         this.dositetrail( site );
+        this.keytrail = [];
         this.isDragging = true;
         this.render();
     },
@@ -490,10 +497,34 @@ var VoronoiDemo = {
         while ( --n >= 0 )
         {
             v = this.dottrail[n];
-            ctx.rect( v.x-2/3, v.y-2/3, 2, 2 );
-            if ( t - this.dottrail[n].time > dotlifetime ) { this.dottrail.splice(n,1); }
+            if ( t - this.dottrail[n].time < dotlifetime ) { ctx.rect( v.x-2/3, v.y-2/3, 2, 2 ); }
         }
         ctx.fill();
+
+        // Key Trail
+        var keylifetime = 100;
+        n = this.keytrail.length;
+        ctx.beginPath();
+        ctx.fillStyle = 'red';
+        ctx.strokeStyle = 'red';
+        while ( --n >= 0 )
+        {
+            var k = this.keytrail[n];
+            var v = this.keyloc[k.key];
+
+            ctx.rect( v.x-2, v.y-2, 5, 5 );
+
+            if ( n > 0 ) {
+                var kprev = this.keytrail[n-1];
+                var vprev = this.keyloc[kprev.key];
+                ctx.moveTo( v.x,     v.y );
+                ctx.lineTo( vprev.x, vprev.y );
+            }
+
+            if ( t - k.time > keylifetime ) { this.keytrail.splice(n,1); }
+        }
+        ctx.fill();
+        ctx.stroke();
     },
 };
 </script>
