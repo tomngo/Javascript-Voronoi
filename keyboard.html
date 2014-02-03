@@ -89,7 +89,7 @@ var VoronoiDemo = {
     margin: 0.15,
     canvas: null,
     bbox: {xl:0,xr:320,yt:0,yb:216},
-    trail: [], // array of { site, time }
+    sitetrail: [], // array of { site, time }
     lastNonIdle: new Date(),
     colorBgnd: '#FFC',
     colorHigh: '#F93',
@@ -269,26 +269,25 @@ var VoronoiDemo = {
         this.diagram = this.voronoi.compute( this.sites, this.bbox );
     },
 
-    keypress: function( site ) {
+    keypress: function( key ) {
+        switch ( key )
+        {
+            case '':   break;
+            case 'sp': textWidget.append( ' ' );    break;
+            case 'bk': textWidget.backspace();      break;
+            default:   textWidget.append( key );
+        }
+    },
+
+    dositetrail: function( site ) {
 
         var cellid = ( site !== undefined ) ? site.voronoiId : undefined;
 
-        if ( site !== undefined ) {
-            switch( site.k )
-            {
-                case '':   break;
-                case 'sp': textWidget.append( ' ' );    break;
-                case 'bk': textWidget.backspace();      break;
-                default:   textWidget.append( site.k );
-            }
-        }
+        if ( site !== undefined ) { this.keypress( site.k ); }
 
         if ( this.lastSite !== site ) {
             var now = new Date();
-            if ( cellid !== undefined ) {
-                this.trail.push( { site: site, time: now.getTime() } );
-                this.render();
-            }
+            if ( cellid !== undefined ) { this.sitetrail.push( { site: site, time: now.getTime() } ); }
             this.lastSite = site;
         }
 
@@ -297,21 +296,23 @@ var VoronoiDemo = {
     startswipe: function( ev ) {
         var mouse = this.normalizeEventCoords( this.canvas, ev );
         var site  = this.siteFromPoint( mouse );
-        this.keypress( site );
+        this.dositetrail( site );
         this.isDragging = true;
+        this.render();
     },
 
     extendswipe: function( ev ) {
         var mouse = this.normalizeEventCoords( this.canvas, ev );
         var site  = this.siteFromPoint( mouse );
-        if ( this.isDragging && (site !== this.lastSite) ) { this.keypress( site ); }
+        if ( this.isDragging && (site !== this.lastSite) ) { this.dositetrail( site ); }
+        this.render();
     },
 
     endswipe: function() {
-        this.keypress( undefined );
+        this.dositetrail( undefined );
         this.isDragging = false;
+        this.render();
     },
-
 
     onMouseDown: function( ev ) {
         ev.preventDefault();
@@ -458,18 +459,17 @@ var VoronoiDemo = {
         ];
         var now = new Date(),
             t = now.getTime(),
-            n = this.trail.length;
+            n = this.sitetrail.length;
         while ( --n >= 0 )
         {
-            // this.renderCell( this.trail[n].site.voronoiId, '#F90', 'black' );
             for ( var i = 0; i < fade.length; i++ )
             {
-                if ( t - this.trail[n].time < fade[i].time )
+                if ( t - this.sitetrail[n].time < fade[i].time )
                 {
-                    this.renderCell( this.trail[n].site.voronoiId, fade[i].color, 'black' );
+                    this.renderCell( this.sitetrail[n].site.voronoiId, fade[i].color, 'black' );
                     break;
                 }
-                this.trail.splice( n, 1 );
+                this.sitetrail.splice( n, 1 );
             }
         }
         
